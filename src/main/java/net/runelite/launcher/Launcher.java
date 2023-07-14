@@ -416,6 +416,7 @@ public class Launcher
 			// Clean out old artifacts from the repository
 			clean(artifacts,type);
 
+
 			try
 			{
 				download(artifacts, settings.isNodiffs(),type);
@@ -701,6 +702,16 @@ public class Launcher
 				hash = null;
 			}
 
+			if (Objects.equals(artifact.getName(), "gameNonObfuscated-0.0.1.jar")) {
+				continue;
+			}
+			if (Objects.equals(artifact.getPath(), "https://repo.maven.apache.org/maven2/com/runescape/game/0.0.1/game-0.0.1.jar")) {
+				continue;
+			}
+			if (Objects.equals(artifact.getPath(), "https://assets.illerai.com/client//runelite-0.0.1.jar")) {
+				continue;
+			}
+
 			if (Objects.equals(hash, artifact.getHash()))
 			{
 				log.debug("Hash for {} up to date", artifact.getName());
@@ -745,6 +756,7 @@ public class Launcher
 
 		for (Artifact artifact : toDownload)
 		{
+
 			File dest = new File(location, artifact.getName());
 			final int total = downloaded;
 
@@ -855,6 +867,18 @@ public class Launcher
 		{
 			String expectedHash = artifact.getHash();
 			String fileHash;
+			if (Objects.equals(artifact.getName(), "gameNonObfuscated-0.0.1.jar")) {
+				System.out.println("SKILLIPING");
+				continue;
+			}
+			if (Objects.equals(artifact.getName(), "game-0.0.1.jar")) {
+				System.out.println("SKILLIPING");
+				continue;
+			}
+			if (Objects.equals(artifact.getPath(), "https://assets.illerai.com/client//runelite-0.0.1.jar")) {
+				System.out.println("SKILLIPING");
+				continue;
+			}
 			try
 			{
 				fileHash = hash(new File(location, artifact.getName()));

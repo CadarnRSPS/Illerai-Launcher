@@ -2,9 +2,9 @@
     "platform": "mac64",
     "icon": "packr/app.icns",
     "jdk": "osx-jdk",
-    "executable": "Elvarg",
+    "executable": "Illerai",
     "classpath": [
-        "target/Elvarg.jar"
+        "target/Illerai.jar"
     ],
     "mainclass": "net.runelite.launcher.Launcher",
     "vmargs": [
@@ -12,5 +12,5 @@
        "-Xss2m",
        "-XX:CompileThreshold=1500"
     ],
-    "output": "native-osx/Elvarg.app"
+    "output": "native-osx/Illerai.app"
 }

@@ -31,12 +31,12 @@ echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | sha256sum -c
 java -jar packr_${PACKR_VERSION}.jar \
     packr/win-x86-config.json
 
-tools/rcedit-x64 native-win32/Elvarg.exe \
+tools/rcedit-x64 native-win32/Illerai.exe \
   --application-manifest packr/app.manifest \
   --set-icon app.ico
 
-echo Elvarg.exe 32bit sha256sum
-sha256sum native-win32/Elvarg.exe
+echo Illerai.exe 32bit sha256sum
+sha256sum native-win32/Illerai.exe
 
 # We use the filtered iss file
 iscc target/filtered-resources/app32.iss

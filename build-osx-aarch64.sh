@@ -40,21 +40,21 @@ echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | shasum -c
 java -jar packr_${PACKR_VERSION}.jar \
 	packr/macos-aarch64-config.json
 
-cp target/filtered-resources/Info.plist native-osx-aarch64/Elvarg.app/Contents
+cp target/filtered-resources/Info.plist native-osx-aarch64/Illerai.app/Contents
 
-echo Setting world execute permissions on Elvarg
-pushd native-osx-aarch64/Elvarg.app
-chmod g+x,o+x Contents/MacOS/Elvarg
+echo Setting world execute permissions on Illerai
+pushd native-osx-aarch64/Illerai.app
+chmod g+x,o+x Contents/MacOS/Illerai
 popd
 
-codesign -f -s "${SIGNING_IDENTITY}" --entitlements osx/signing.entitlements --options runtime native-osx-aarch64/Elvarg.app || true
+codesign -f -s "${SIGNING_IDENTITY}" --entitlements osx/signing.entitlements --options runtime native-osx-aarch64/Illerai.app || true
 
 # create-dmg exits with an error code due to no code signing, but is still okay
-create-dmg native-osx-aarch64/Elvarg.app native-osx-aarch64/ || true
+create-dmg native-osx-aarch64/Illerai.app native-osx-aarch64/ || true
 
-mv native-osx-aarch64/Elvarg\ *.dmg native-osx-aarch64/Elvarg-aarch64.dmg
+mv native-osx-aarch64/Illerai\ *.dmg native-osx-aarch64/Illerai-aarch64.dmg
 
 # Notarize app
-if xcrun notarytool submit native-osx-aarch64/Elvarg-aarch64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
-    xcrun stapler staple native-osx-aarch64/Elvarg-aarch64.dmg
+if xcrun notarytool submit native-osx-aarch64/Illerai-aarch64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
+    xcrun stapler staple native-osx-aarch64/Illerai-aarch64.dmg
 fi

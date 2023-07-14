@@ -1,9 +1,9 @@
 {
   "platform": "windows64",
   "jdk": "win64-jdk",
-  "executable": "Elvarg",
+  "executable": "Illerai",
   "classpath": [
-    "target/Elvarg.jar"
+    "target/Illerai.jar"
   ],
   "mainclass": "net.runelite.launcher.Launcher",
   "vmargs": [

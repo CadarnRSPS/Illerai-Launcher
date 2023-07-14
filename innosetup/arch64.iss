@@ -1,10 +1,10 @@
 [Setup]
-AppName=Elvarg Launcher
-AppPublisher=Elvarg
-UninstallDisplayName=Elvarg
+AppName=Illerai Launcher
+AppPublisher=Illerai
+UninstallDisplayName=Illerai
 AppVersion=${project.version}
-AppSupportURL=https://elvarg.net/
-DefaultDirName={localappdata}\Elvarg
+AppSupportURL=https://illerai.com/
+DefaultDirName={localappdata}\Illerai
 
 ; ~30 mb for the repo the launcher downloads
 ExtraDiskSpaceRequired=30000000
@@ -14,43 +14,43 @@ PrivilegesRequired=lowest
 WizardSmallImageFile=${basedir}/app_small.bmp
 WizardImageFile=${basedir}/left.bmp
 SetupIconFile=${basedir}/app.ico
-UninstallDisplayIcon={app}\Elvarg.exe
+UninstallDisplayIcon={app}\Illerai.exe
 
 Compression=lzma2
 SolidCompression=yes
 
 OutputDir=${basedir}
-OutputBaseFilename=ElvargSetupAArch64
+OutputBaseFilename=IlleraiSetupAArch64
 
 [Tasks]
 Name: DesktopIcon; Description: "Create a &desktop icon";
 
 [Files]
-Source: "${basedir}\native-win-aarch64\Elvarg.exe"; DestDir: "{app}"
-Source: "${basedir}\native-win-aarch64\Elvarg.jar"; DestDir: "{app}"
+Source: "${basedir}\native-win-aarch64\Illerai.exe"; DestDir: "{app}"
+Source: "${basedir}\native-win-aarch64\Illerai.jar"; DestDir: "{app}"
 Source: "${basedir}\native\buildaarch64\Release\launcher_aarch64.dll"; DestDir: "{app}"
 Source: "${basedir}\native-win-aarch64\config.json"; DestDir: "{app}"
 Source: "${basedir}\native-win-aarch64\jre\*"; DestDir: "{app}\jre"; Flags: recursesubdirs
 
 [Icons]
 ; start menu
-Name: "{userprograms}\Elvarg\Elvarg"; Filename: "{app}\Elvarg.exe"
-Name: "{userprograms}\Elvarg\Elvarg (configure)"; Filename: "{app}\Elvarg.exe"; Parameters: "--configure"
-Name: "{userprograms}\Elvarg\Elvarg (safe mode)"; Filename: "{app}\Elvarg.exe"; Parameters: "--safe-mode"
-Name: "{userdesktop}\Elvarg"; Filename: "{app}\Elvarg.exe"; Tasks: DesktopIcon
+Name: "{userprograms}\Illerai\Illerai"; Filename: "{app}\Illerai.exe"
+Name: "{userprograms}\Illerai\Illerai (configure)"; Filename: "{app}\Illerai.exe"; Parameters: "--configure"
+Name: "{userprograms}\Illerai\Illerai (safe mode)"; Filename: "{app}\Illerai.exe"; Parameters: "--safe-mode"
+Name: "{userdesktop}\Illerai"; Filename: "{app}\Illerai.exe"; Tasks: DesktopIcon
 
 [Run]
-Filename: "{app}\Elvarg.exe"; Parameters: "--postinstall"; Flags: nowait
-Filename: "{app}\Elvarg.exe"; Description: "&Open Elvarg"; Flags: postinstall skipifsilent nowait
+Filename: "{app}\Illerai.exe"; Parameters: "--postinstall"; Flags: nowait
+Filename: "{app}\Illerai.exe"; Description: "&Open Illerai"; Flags: postinstall skipifsilent nowait
 
 [InstallDelete]
 ; Delete the old jvm so it doesn't try to load old stuff with the new vm and crash
 Type: filesandordirs; Name: "{app}\jre"
 ; previous shortcut
-Type: files; Name: "{userprograms}\Elvarg.lnk"
+Type: files; Name: "{userprograms}\Illerai.lnk"
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{%USERPROFILE}\.elvarg\repository2"
+Type: filesandordirs; Name: "{%USERPROFILE}\.illerai\repository2"
 ; includes install_id, settings, etc
 Type: filesandordirs; Name: "{app}"
 
