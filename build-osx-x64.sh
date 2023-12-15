@@ -2,65 +2,85 @@
 
 set -e
 
-PACKR_VERSION="runelite-1.7"
-PACKR_HASH="f61c7faeaa364b6fa91eb606ce10bd0e80f9adbce630d2bae719aef78d45da61"
+APPBASE="build/macos-x64/Illerai.app"
 
-SIGNING_IDENTITY="Developer ID Application"
-
-source .jdk-versions.sh
-
-if ! [ -f mac64_jre.tar.gz ] ; then
-    curl -Lo mac64_jre.tar.gz $MAC_AMD64_LINK
-fi
-
-echo "$MAC_AMD64_CHKSUM  mac64_jre.tar.gz" | shasum -c
-
-# packr requires a "jdk" and pulls the jre from it - so we have to place it inside
-# the jdk folder at jre/
-if ! [ -d osx-jdk ] ; then
-    tar zxf mac64_jre.tar.gz
-    mkdir osx-jdk
-    mv jdk-$MAC_AMD64_VERSION-jre osx-jdk/jre
-
-    pushd osx-jdk/jre
-    # Move JRE out of Contents/Home/
-    mv Contents/Home/* .
-    # Remove unused leftover folders
-    rm -rf Contents
+build() {
+    pushd native
+    cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -B build-x64 .
+    cmake --build build-x64 --config Release
     popd
-fi
 
-if ! [ -f packr_${PACKR_VERSION}.jar ] ; then
-    curl -Lo packr_${PACKR_VERSION}.jar \
-        https://github.com/runelite/packr/releases/download/${PACKR_VERSION}/packr.jar
-fi
+    source .jdk-versions.sh
 
-echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | shasum -c
+    rm -rf build/macos-x64
+    mkdir -p build/macos-x64
 
-java -jar packr_${PACKR_VERSION}.jar \
-    packr/macos-x64-config.json
+    if ! [ -f mac64_jre.tar.gz ] ; then
+        curl -Lo mac64_jre.tar.gz $MAC_AMD64_LINK
+    fi
 
-cp target/filtered-resources/Info.plist native-osx/Illerai.app/Contents
+    echo "$MAC_AMD64_CHKSUM  mac64_jre.tar.gz" | shasum -c
 
-echo Setting world execute permissions on Illerai
-pushd native-osx/Illerai.app
-chmod g+x,o+x Contents/MacOS/Illerai
-popd
+    mkdir -p $APPBASE/Contents/{MacOS,Resources}
 
-codesign -f -s "${SIGNING_IDENTITY}" --entitlements osx/signing.entitlements --options runtime native-osx/Illerai.app || true
+    cp native/build-x64/src/Illerai $APPBASE/Contents/MacOS/
+    cp target/Illerai.jar $APPBASE/Contents/Resources/
+    cp packr/macos-x64-config.json $APPBASE/Contents/Resources/config.json
+    cp target/filtered-resources/Info.plist $APPBASE/Contents/
+    cp osx/app.icns $APPBASE/Contents/Resources/icons.icns
 
-# create-dmg exits with an error code due to no code signing, but is still okay
-# note we use Adam-/create-dmg as upstream does not support UDBZ
-create-dmg --format UDBZ native-osx/Illerai.app native-osx/ || true
+    tar zxf mac64_jre.tar.gz
+    mkdir $APPBASE/Contents/Resources/jre
+    mv jdk-$MAC_AMD64_VERSION-jre/Contents/Home/* $APPBASE/Contents/Resources/jre
 
-mv native-osx/Illerai\ *.dmg native-osx/Illerai-x64.dmg
+    echo Setting world execute permissions on Illerai
+    pushd $APPBASE
+    chmod g+x,o+x Contents/MacOS/Illerai
+    popd
 
-if ! hdiutil imageinfo native-osx/Illerai-x64.dmg | grep -q "Format: UDBZ" ; then
-    echo "Format of resulting dmg was not UDBZ, make sure your create-dmg has support for --format"
-    exit 1
-fi
+    otool -l $APPBASE/Contents/MacOS/Illerai
+}
 
-# Notarize app
-if xcrun notarytool submit native-osx/Illerai-x64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
-    xcrun stapler staple native-osx/Illerai-x64.dmg
-fi
+dmg() {
+    SIGNING_IDENTITY="Developer ID Application"
+    codesign -f -s "${SIGNING_IDENTITY}" --entitlements osx/signing.entitlements --options runtime $APPBASE || true
+
+    # create-dmg exits with an error code due to no code signing, but is still okay
+    # note we use Adam-/create-dmg as upstream does not support UDBZ
+    create-dmg --format UDBZ $APPBASE . || true
+    mv Illerai\ *.dmg Illerai-x64.dmg
+
+    # dump for CI
+    hdiutil imageinfo Illerai-x64.dmg
+
+    if ! hdiutil imageinfo Illerai-x64.dmg | grep -q "Format: UDBZ" ; then
+        echo "Format of resulting dmg was not UDBZ, make sure your create-dmg has support for --format"
+        exit 1
+    fi
+
+    if ! hdiutil imageinfo Illerai-x64.dmg | grep -q "Apple_HFS" ; then
+        echo Filesystem of dmg is not Apple_HFS
+        exit 1
+    fi
+
+    # Notarize app
+    if xcrun notarytool submit Illerai-x64.dmg --wait --keychain-profile "AC_PASSWORD" ; then
+        xcrun stapler staple Illerai-x64.dmg
+    fi
+}
+
+while test $# -gt 0; do
+  case "$1" in
+    --build)
+      build
+      shift
+      ;;
+    --dmg)
+      dmg
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done

@@ -1,20 +1,11 @@
 {
-    "platform": "linuxaarch64",
-    "jdk": "linux-aarch64-jdk",
-    "executable": "Illerai",
-    "classpath": [
-        "target/Illerai.jar"
-    ],
-    "mainclass": "net.runelite.launcher.Launcher",
-    "vmargs": [
-       "-Drunelite.launcher.reflect=true",
-       "-Xmx512m",
-       "-Xss2m",
-       "-XX:CompileThreshold=1500"
-    ],
-    "output": "native-linux-aarch64/Illerai.AppDir/",
-    "resources": [
-      "target/filtered-resources/app.desktop",
-      "appimage/app.png"
-    ]
+  "classPath": [
+    "Illerai.jar"
+  ],
+  "mainClass": "net.runelite.launcher.Launcher",
+  "vmArgs": [
+    "-Xmx768m",
+    "-Xss2m",
+    "-XX:CompileThreshold=1500"
+  ]
 }

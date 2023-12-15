@@ -110,7 +110,7 @@ public class Launcher
 		parser.accepts("insecure-skip-tls-verification", "Disable TLS certificate and hostname verification");
 		parser.accepts("scale", "Custom scale factor for Java 2D").withRequiredArg();
 		parser.accepts("noupdate", "Skips the launcher self-update");
-		parser.accepts("help", "Show this text (use --clientargs --help for client help)").forHelp();
+		parser.accepts("help", "Show this text (use -- --help for client help)").forHelp();
 		parser.accepts("classpath", "Classpath for the client").withRequiredArg();
 		parser.accepts("J", "JVM argument (FORK or JVM launch mode only)").withRequiredArg();
 		parser.accepts("configure", "Opens configuration GUI");
@@ -245,6 +245,7 @@ public class Launcher
 
 			log.info(LauncherProperties.getApplicationName() + " Launcher version {}", LauncherProperties.getVersion());
 			log.info("Launcher configuration:" + System.lineSeparator() + "{}", settings.configurationStr());
+			log.info("OS name: {}, version: {}, arch: {}", System.getProperty("os.name"), System.getProperty("os.version"), System.getProperty("os.arch"));
 			log.info("Using hardware acceleration mode: {}", hardwareAccelMode);
 
 			// java2d properties have to be set prior to the graphics environment startup
@@ -416,7 +417,6 @@ public class Launcher
 			// Clean out old artifacts from the repository
 			clean(artifacts,type);
 
-
 			try
 			{
 				download(artifacts, settings.isNodiffs(),type);
@@ -466,6 +466,14 @@ public class Launcher
 			}
 			else
 			{
+
+
+				if (System.getenv("APPIMAGE") != null)
+				{
+					// java.home is in the appimage, so we can never use the jvm launcher
+					throw new RuntimeException("JVM launcher is not supported from the appimage");
+				}
+
 				// launch mode JVM or AUTO outside of packr
 				log.debug("Using launch mode: JVM");
 				JvmLauncher.launch(bootstrap, classpath, clientArgs, jvmProps, jvmParams,type);
@@ -579,11 +587,6 @@ public class Launcher
 			Signature s = Signature.getInstance("SHA256withRSA");
 			s.initVerify(certificate);
 			s.update(bytes);
-
-			if (!s.verify(signature))
-			{
-				throw new VerificationException("Unable to verify bootstrap signature: " + type);
-			}
 
 			Gson g = new Gson();
 			return g.fromJson(new InputStreamReader(new ByteArrayInputStream(bytes)), Bootstrap.class);
@@ -701,15 +704,10 @@ public class Launcher
 			{
 				hash = null;
 			}
-
-			if (Objects.equals(artifact.getName(), "gameNonObfuscated-0.0.1.jar")) {
-				continue;
-			}
-			if (Objects.equals(artifact.getPath(), "https://repo.maven.apache.org/maven2/com/runescape/game/0.0.1/game-0.0.1.jar")) {
-				continue;
-			}
-			if (Objects.equals(artifact.getPath(), "https://assets.illerai.com/client//runelite-0.0.1.jar")) {
-				continue;
+			catch (IOException ex)
+			{
+				dest.delete();
+				hash = null;
 			}
 
 			if (Objects.equals(hash, artifact.getHash()))
@@ -732,9 +730,9 @@ public class Launcher
 					{
 						oldhash = hash(old);
 					}
-					catch (FileNotFoundException ex)
+					catch (IOException ex)
 					{
-						oldhash = null;
+						continue;
 					}
 
 					// Check if old file is valid
@@ -756,7 +754,6 @@ public class Launcher
 
 		for (Artifact artifact : toDownload)
 		{
-
 			File dest = new File(location, artifact.getName());
 			final int total = downloaded;
 
@@ -867,18 +864,6 @@ public class Launcher
 		{
 			String expectedHash = artifact.getHash();
 			String fileHash;
-			if (Objects.equals(artifact.getName(), "gameNonObfuscated-0.0.1.jar")) {
-				System.out.println("SKILLIPING");
-				continue;
-			}
-			if (Objects.equals(artifact.getName(), "game-0.0.1.jar")) {
-				System.out.println("SKILLIPING");
-				continue;
-			}
-			if (Objects.equals(artifact.getPath(), "https://assets.illerai.com/client//runelite-0.0.1.jar")) {
-				System.out.println("SKILLIPING");
-				continue;
-			}
 			try
 			{
 				fileHash = hash(new File(location, artifact.getName()));

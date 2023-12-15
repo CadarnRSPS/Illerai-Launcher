@@ -26,11 +26,14 @@ OutputBaseFilename=IlleraiSetup32
 Name: DesktopIcon; Description: "Create a &desktop icon";
 
 [Files]
-Source: "${basedir}\native-win32\Illerai.exe"; DestDir: "{app}"
-Source: "${basedir}\native-win32\Illerai.jar"; DestDir: "{app}"
-Source: "${basedir}\native\build32\Release\launcher_x86.dll"; DestDir: "{app}"
-Source: "${basedir}\native-win32\config.json"; DestDir: "{app}"
-Source: "${basedir}\native-win32\jre\*"; DestDir: "{app}\jre"; Flags: recursesubdirs
+Source: "${basedir}\build\win-x86\Illerai.exe"; DestDir: "{app}"
+Source: "${basedir}\build\win-x86\Illerai.jar"; DestDir: "{app}"
+Source: "${basedir}\build\win-x86\launcher_x86.dll"; DestDir: "{app}"
+Source: "${basedir}\build\win-x86\config.json"; DestDir: "{app}"
+Source: "${basedir}\build\win-x86\jre\*"; DestDir: "{app}\jre"; Flags: recursesubdirs
+Source: "${basedir}\app.ico"; DestDir: "{app}"
+Source: "${basedir}\left.bmp"; DestDir: "{app}"
+Source: "${basedir}\app_small.bmp"; DestDir: "{app}"
 
 [Icons]
 ; start menu
@@ -56,3 +59,5 @@ Type: filesandordirs; Name: "{app}"
 
 [Code]
 #include "upgrade.pas"
+#include "usernamecheck.pas"
+#include "dircheck.pas"

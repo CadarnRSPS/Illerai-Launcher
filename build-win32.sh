@@ -2,10 +2,18 @@
 
 set -e
 
-PACKR_VERSION="runelite-1.7"
-PACKR_HASH="f61c7faeaa364b6fa91eb606ce10bd0e80f9adbce630d2bae719aef78d45da61"
+cmake -S liblauncher -B liblauncher/build32 -A Win32
+cmake --build liblauncher/build32 --config Release
+
+pushd native
+cmake -B build-x86 -A Win32
+cmake --build build-x86 --config Release
+popd
 
 source .jdk-versions.sh
+
+rm -rf build/win-x86
+mkdir -p build/win-x86
 
 if ! [ -f win32_jre.zip ] ; then
     curl -Lo win32_jre.zip $WIN32_LINK
@@ -13,30 +21,18 @@ fi
 
 echo "$WIN32_CHKSUM win32_jre.zip" | sha256sum -c
 
-# packr requires a "jdk" and pulls the jre from it - so we have to place it inside
-# the jdk folder at jre/
-if ! [ -d win32-jdk ] ; then
-    unzip win32_jre.zip
-    mkdir win32-jdk
-    mv jdk-$WIN32_VERSION-jre win32-jdk/jre
-fi
+cp native/build-x86/src/Release/Illerai.exe build/win-x86/
+cp target/Illerai.jar build/win-x86/
+cp packr/win-x86-config.json build/win-x86/config.json
+cp liblauncher/build32/Release/launcher_x86.dll build/win-x86/
 
-if ! [ -f packr_${PACKR_VERSION}.jar ] ; then
-    curl -Lo packr_${PACKR_VERSION}.jar \
-        https://github.com/runelite/packr/releases/download/${PACKR_VERSION}/packr.jar
-fi
-
-echo "${PACKR_HASH}  packr_${PACKR_VERSION}.jar" | sha256sum -c
-
-java -jar packr_${PACKR_VERSION}.jar \
-    packr/win-x86-config.json
-
-tools/rcedit-x64 native-win32/Illerai.exe \
-  --application-manifest packr/app.manifest \
-  --set-icon app.ico
+unzip win32_jre.zip
+mv jdk-$WIN32_VERSION-jre build/win-x86/jre
 
 echo Illerai.exe 32bit sha256sum
-sha256sum native-win32/Illerai.exe
+sha256sum build/win-x86/Illerai.exe
+
+dumpbin //HEADERS build/win-x86/Illerai.exe
 
 # We use the filtered iss file
 iscc target/filtered-resources/app32.iss
